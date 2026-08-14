@@ -1,0 +1,541 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot, % set margins without considering header and footer
+    top=1 cm, % seperation between body and page edge from the top
+    bottom=1 cm, % seperation between body and page edge from the bottom
+    left=2 cm, % seperation between body and page edge from the left
+    right=2 cm, % seperation between body and page edge from the right
+    footskip=1.0 cm, % seperation between body and footer
+    % showframe % for debugging
+]{geometry} % for adjusting page geometry
+\usepackage{titlesec} % for customizing section titles
+\usepackage{tabularx} % for making tables with fixed width columns
+\usepackage{array} % tabularx requires this
+\usepackage[dvipsnames]{xcolor} % for coloring text
+\definecolor{primaryColor}{RGB}{0, 0, 0} % define primary color
+\usepackage{enumitem} % for customizing lists
+\usepackage{fontawesome5} % for using icons
+\usepackage{amsmath} % for math
+\usepackage[
+    pdftitle={Sreeniketh's CV},
+    pdfauthor={Sreeniketh},
+    pdfcreator={LaTeX with RenderCV},
+    colorlinks=true,
+    urlcolor=primaryColor
+]{hyperref} % for links, metadata and bookmarks
+\usepackage[pscoord]{eso-pic} % for floating text on the page
+\usepackage{calc} % for calculating lengths
+\usepackage{bookmark} % for bookmarks
+\usepackage{lastpage} % for getting the total number of pages
+\usepackage{changepage} % for one column entries (adjustwidth environment)
+\usepackage{paracol} % for two and three column entries
+\usepackage{ifthen} % for conditional statements
+\usepackage{needspace} % for avoiding page brake right after the section title
+\usepackage{iftex} % check if engine is pdflatex, xetex or luatex
+
+% Ensure that generate pdf is machine readable/ATS parsable:
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+\usepackage{charter}
+
+% Some settings:
+\raggedright
+\AtBeginEnvironment{adjustwidth}{\partopsep0pt} % remove space before adjustwidth environment
+\pagestyle{empty} % no header or footer
+\setcounter{secnumdepth}{0} % no section numbering
+\setlength{\parindent}{0pt} % no indentation
+\setlength{\topskip}{0pt} % no top skip
+\setlength{\columnsep}{0.15cm} % set column seperation
+\pagenumbering{gobble} % no page numbering
+
+\titleformat{\section}{\needspace{0\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{0pt}\titlerule]
+
+\titlespacing{\section}{
+    % left space:
+    -1pt
+}{
+    % top space:
+    0.15 cm
+}{
+    % bottom space:
+    0.15 cm
+} % section title spacing
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\small$\bullet$}}$} % custom bullet points
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.05 cm,
+        parsep=0.05 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=0 cm + 10pt
+    ]
+}{
+    \end{itemize}
+} % new environment for highlights
+
+
+\newenvironment{highlightsforbulletentries}{
+    \begin{itemize}[
+        topsep=0.05 cm,
+        parsep=0.05 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=5pt
+    ]
+}{
+    \end{itemize}
+} % new environment for highlights for bullet entries
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{
+        0 cm + 0.00001 cm
+    }{
+        0 cm + 0.00001 cm
+    }
+}{
+    \end{adjustwidth}
+} % new environment for one column entries
+
+\newenvironment{twocolentry}[2][]{
+    \onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5 cm}
+    \begin{paracol}{2}
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry
+} % new environment for two column entries
+
+\newenvironment{threecolentry}[3][]{
+    \onecolentry
+    \def\thirdColumn{#3}
+    \setcolumnwidth{, \fill, 4.5 cm}
+    \begin{paracol}{3}
+    {\raggedright #2} \switchcolumn
+}{
+    \switchcolumn \raggedleft \thirdColumn
+    \end{paracol}
+    \endonecolentry
+} % new environment for three column entries
+
+\newenvironment{header}{
+    \setlength{\topsep}{0pt}\par\kern\topsep\centering\linespread{1.5}
+}{
+    \par\kern\topsep
+} % new environment for the header
+
+\newcommand{\placelastupdatedtext}{% \placetextbox{<horizontal pos>}{<vertical pos>}{<stuff>}
+  \AddToShipoutPictureFG*{% Add <stuff> to current page foreground
+    \put(
+        \LenToUnit{\paperwidth-2 cm-0 cm+0.05cm},
+        \LenToUnit{\paperheight-1.0 cm}
+    ){\vtop{{\null}\makebox[0pt][c]{
+        \small\color{gray}\textit{Last updated in August 2026}\hspace{\widthof{Last updated in August 2026}}
+    }}}%
+  }%
+}%
+
+% save the original href command in a new command:
+\let\hrefWithoutArrow\href
+
+% new command for external links:
+
+
+\begin{document}
+    \newcommand{\AND}{\unskip
+        \cleaders\copy\ANDbox\hskip\wd\ANDbox
+        \ignorespaces
+    }
+    \newsavebox\ANDbox
+    \sbox\ANDbox{$|$}
+
+    \begin{header}
+        \fontsize{20 pt}{20 pt}\selectfont Sreeniketh Aathreya
+        \vspace{2 pt }\begin{onecolentry}
+        \centering
+                                \fontsize{10 pt}{10 pt}\selectfont Software Engineer / Solutions Architect
+        \end{onecolentry}
+
+        \vspace{2 pt }
+        \normalsize
+        \mbox{\hrefWithoutArrow{https://sreenikethaathreya.com}{sreenikethaathreya.com}}%
+        \kern 1.0 pt%
+        \AND%
+        \kern 1.5 pt%
+        \mbox{\hrefWithoutArrow{mailto:sreenikethaathreya@gmail.com}{sreenikethaathreya@gmail.com}}%
+        \kern 1.5 pt%
+        \AND%
+        \kern 1.5 pt%
+        \mbox{\hrefWithoutArrow{tel:+1-571-279-7924}{+1-571-279-7924}}%
+        \kern 1.5 pt%
+        \AND%
+        \kern 1.0 pt%
+        \mbox{\hrefWithoutArrow{https://www.linkedin.com/in/sreeniketh-aathreya-16800b122/}{linkedin.com/in/sreeniketh-aathreya}}%
+        \kern 1.0 pt%
+        \AND%
+    \end{header}
+
+    \vspace{2 pt }
+
+
+    \section{Professional Summary}
+        \vspace{2 pt }
+        \begin{onecolentry}
+            • Outcome-driven Solutions Architect with over 7 years of comprehensive experience in application and ecosystem architecture, AI-native solution design, Python automation, DevOps practices, ML/AI, Internet Technologies, Data Science, and Cloud technologies with proven leadership capabilities in enterprise environments.
+ \end{onecolentry}
+\begin{onecolentry}
+ • Extensive experience in designing and implementing end-to-end scalable applications, automation frameworks and cloud-based solutions across multiple industries, including real estate, fintech, healthcare and e-Commerce.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Expert knowledge and proficiency in modern web technologies including React, HTML5, CSS3, Node.js, and RESTful API development and GraphQL integrations.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Worked extensively with Object-Oriented Programming concepts in Python, Java, Kotlin, and GOLANG, implementing robust software architecture patterns and design principles in enterprise applications.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Deep expertise in the cloud computing ecosystem: AWS (EC2, RDS, Lambda, CloudFormation, ELB), GCP (Master Tier in Vertex AI, Gemini Enterprise, BigQuery), container and Kubernetes orchestration, and Infrastructure as Code with Terraform.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Comprehensive experience in Data Engineering with structured and unstructured data processing, ETL pipeline
+development, data validation, and advanced analytics using Python and distributed computing frameworks.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Hands-on experience with cutting-edge AI/ML libraries and frameworks including Anthropic, Gemini Enterprise, Google ADK, LangChain, TensorFlow, and implementing AI-native systems for solving enterprise problems with advanced ML techniques including natural language processing, computer vision,
+reinforcement learning, and implementing socially-aware AI systems with 98+ \% accuracy rates. Appointed as AI Labs Lead for the expertise shown in implementing lean, creative AI solutions and the exhibiting rigor in scaling them out.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Proficient in distributed systems, blockchain technology with R3 Corda platform, and NoSQL databases with expertise in applying data optimization techniques in B2B and B2C enterprise solutions.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Strong understanding of CI/CD pipelines, DevOps methodologies, and have successfully implemented automated deployment strategies using GitHub Actions, Jenkins, and Kubernetes across multiple cloud platforms.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Extensive experience with security frameworks, vulnerability assessment, DDoS mitigation, and implementing enterprise-grade access control systems for sensitive data governance.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Deep knowledge of SDLC, Agile, and Scrum methodologies with proven track record of leading cross-functional teams and delivering multi-million dollar projects well within allocated time and budget.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Strong background in database design and optimization across multiple platforms including PostgreSQL, MySQL, data lakes and vector databases.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Solid track record in leading solution discovery workshops and translating client business goals into technical architectures, staffing estimates, and delivery-ready proposals, with sharp sensitivity to business pain points and proven ability to drive outcomes as an individual contributor and as a skilled leader.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Experienced in build-versus-buy evaluation and recommending best-fit cloud and AI toolsets across GCP, AWS, and Azure to align technical solutions with client objectives and delivery constraints.
+ \end{onecolentry}
+ \begin{onecolentry}
+• Proficient in automation testing frameworks, security audit scripting, and system log analysis that reduced vulnerabilities by 30\% in enterprise environments.
+ \end{onecolentry}
+ \begin{onecolentry}
+ • Strong background in technical sales support and customer advocacy, with proven track record of closing \$10+ million enterprise deals through comprehensive technical demonstrations, proof-of-concepts (POCs), and customer analysis reports (CARs), and setting up trade-off comparisons and visualizations for value propositions that aligned technical solutions with business objectives.
+ \end{onecolentry}
+ \begin{onecolentry}
+ • Proven expertise in presenting technical topics to diverse audiences, including C-level executives, IT leadership, enterprise business professionals, and technical stakeholders, with experience in leading sales activities and facilitating product adoption for complex software solutions.
+ \end{onecolentry}
+ \begin{onecolentry}
+ • Deep experience in solution architecture and technical proposal development, with comprehensive understanding of global platform technologies and edge computing solutions that make internet and application experiences faster, more reliable, and more secure for compliance-sensitive organizations.
+ \end{onecolentry}
+
+        \begin{onecolentry}
+                \textbf{•F1/OPT, H1B lottery picked}
+        \end{onecolentry}
+
+    \vspace{2 pt }
+
+    \section{Technical Skills}
+    \vspace{2 pt }
+    \begin{onecolentry}
+    \textbf{Languages and Frameworks:} Python, Go(GOLANG), JavaScript, Bash, React, Kotlin, SQL, C, C++, Java, TypeScript, YAML
+    \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Operating Systems:} Linux, Windows, Unix, Ubuntu.
+    \end{onecolentry}
+    \begin{onecolentry}
+         \textbf{Web Technologies:} JavaScript, HTML, RShiny, XML, CSS, PHP, WordPress, Spring, RabbitMQ, React, Node.js, FastAPI \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Database Management:} MS Access, MySQL, Oracle, PostgreSQL, RESTful APIs, GraphQL \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Cloud Computing Tools:}
+AWS CLI, EC2, RDS, ELB, Elastic Cache, CloudFormation, CloudWatch, GCP CLI, Cloud Run, App Engine, Secret Manager, AI Model Garden, Vertex AI, BigQuery, Prometheus, Grafana, Git-Lab, Docker, Ansible Tower, Terraform, Jenkins, Helm, GitHub, Databricks, Docker, Github Actions, NodeJS, Kubernetes, Aurora.
+    \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{AI Integrations:} Google ADK, Anthropic, Llama3, Gemini Enterprise, LangChain \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Architecture:} Microservices, API-first design, event-driven systems, solution diagramming, build-vs-buy evaluation \end{onecolentry}
+        \begin{onecolentry}
+     \textbf{Other:} TCP/IP, DNS, TLS/SSL, HTTP/HTTPS, CDN Architecture, Edge Computing, Global Platform Technologies, Intelligent Edge, Bot Defender, WAF. HIPAA Compliance, FHIR Standards, Healthcare Interoperability, Medical Device Security, Regulatory Compliance, Technical Solution Design, System Integration, Performance Optimization, Scalability Planning, Enterprise Architecture.
+    \end{onecolentry}
+
+    \vspace{2 pt }
+    \section{Certifications}
+        \vspace{2 pt }
+        \begin{samepage}
+            \begin{onecolentry}
+                \textbf{GCP Certified Professional Data Engineer} : \href{https://www.credly.com/badges/977e96d9-12e7-4f6c-b8a7-df71fb7153b8/public_url}{Credly}(2026-01-16 to 2028-01-16)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{GCP Certified Professional Machine Learning Engineer} : \href{https://www.credly.com/badges/a6965347-09ea-4d8f-b398-0e151407160d/public_url}{Credly}(2025-11-26 to 2027-11-26)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified AI Practitioner} : \href{https://www.credly.com/badges/451b7ba5-8be1-4a8e-bbec-ade26627a6b6/public_url}{Credly} and \href{https://cp.certmetrics.com/amazon/en/public/verify/credential/495f0d9853874bf9a33c17f8e89ce131}{Certmetrics}(2024-09-30 to 2027-09-30)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified Developer – Associate} : \href{https://www.credly.com/badges/b8106fbd-d3d1-4204-8cdf-e708798fd582/public_url}{Credly and AWS}(2021-09-03  to 2024-09-03)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified Solutions Architect – Associate} : \href{https://cp.certmetrics.com/amazon/en/public/verify/credential/SNBY48EBJJVE1SWX}{Certmetrics}(2020-12-12 to 2023-12-12)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified Data Engineer – Associate}
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{Corda Certified Developer}
+            \end{onecolentry}
+                \begin{onecolentry}
+                \textbf{Databricks Lakehouse Fundamentals} : \href{https://scl.io/FXGKS0u}{Databricks}(2024-08-27 to 2026-08-27)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{Databricks Generative AI Fundamentals} \href{https://sgq.io/3uIFGNi}{Databricks}(2024-08-26 to 2026-08-26)
+            \end{onecolentry}
+        \end{samepage}
+
+
+    \vspace{0.5cm}
+    \section{Work Experience}
+        \vspace{0.1cm}
+
+        %% ---- HatchWorks AI (NEW) ----
+        \begin{twocolentry}{
+            \textbf{November 2025 - Present}
+        }
+            \textbf{Solution Architect \& AI Labs Lead} HatchWorks AI -- Remote, US\end{twocolentry}
+
+        \begin{onecolentry}
+             • Partnered with the CTO to shape the technical direction of 20+ client engagements from discovery through delivery, translating business goals into delivery-ready technical architectures, staffing estimates, and scoped proposals for AI-native and cloud-native platforms.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated with stakeholders from various streams of multiple private-equity firms to modernize and evolve processes of 100+ of their companies and build software solutions that served a multitude of roles while remaining compliant to specific industry standards.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Designed AI-native workflows leveraging foundation models, embeddings, agentic orchestration, and LLM integration patterns (LangChain, Vertex AI) to deliver intelligent, purpose-built software products for enterprise clients across multiple industries.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Participated in multiple early-stage prototyping and architecture handoffs during project kickoff, ensuring delivery teams have a clear and stable technical foundation spanning full-stack development, data engineering, and agentic engineering.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Evaluated various novel implementations to recommend best-fit cloud and AI toolsets for client engagements, contributing to reusable architectural patterns, delivery accelerators, and reference implementations that improved organizational delivery velocity.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Major contributor in establishing \textbf{GenDD}\href{https://hatchworks.com/generative-driven-development/}{\textbf{(Click here)}} - an organization-wide methodology and AI delivery automation framework for performing 150+ tasks that fall under the umbrella of software development, the adoption of which accelerated delivery timelines. 347 AI Hrs Reclaimed / Month. 75\% productivity gain while maintaining <3\% defect rate.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Python, TypeScript, React, Node.js, FastAPI, LangChain, GCP (Vertex AI, BigQuery), AWS, Docker, Terraform, CI/CD, Kubernetes, Gemini, Anthropic, Agile/Scrum.
+        \end{onecolentry}
+
+        \vspace{0.1cm}
+
+        %% ---- i-Link Solutions ----
+        \begin{twocolentry}{
+            \textbf{Dec 2024 - November 2025}
+        }
+            \textbf{Software Engineer}, i-Link Solutions -- Chantilly, VA\end{twocolentry}
+
+
+        \begin{onecolentry}
+             • Led technical solutions development for Lantern, a critical healthcare monitoring platform serving enterprise healthcare customers nationwide, working directly with healthcare providers, payers, and government health agencies to deliver fast, reliable, and secure healthcare technology solutions.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Conducted technical demonstrations and solution presentations to diverse healthcare stakeholders, including C-level executives, IT leadership, and clinical teams, successfully advocating for technical solutions that align healthcare interoperability requirements with business objectives.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Architected comprehensive event-driven, cloud-native technical solutions that process millions of healthcare API calls daily with 99.9\% uptime, implementing advanced security protocols, performance optimization, and compliance frameworks including HIPAA and 21st Century Cures Act requirements.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Managed technical proposal processes and customer analysis reports for healthcare enterprise accounts, ensuring accurate technical recommendations that address customer requirements while maximizing product value through scalable platform solutions.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated with cross-functional teams including product engineering, cloud architects, and government stakeholders to design technical solutions that meet complex healthcare regulatory requirements and enterprise performance standards.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Mentored junior engineers on architecture patterns, microservices design, and Agile delivery practices, contributing to improved team velocity and engineering maturity across the organization.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Tracked account activity and business analysis for healthcare enterprise customers, providing technical insights and solution recommendations that support account growth and long-term customer success.
+        \end{onecolentry}
+
+        \begin{onecolentry}
+             • Environment: Go, Python, PostgreSQL, RabbitMQ, Docker, Kubernetes, Microservices, Automated Monitoring, Healthcare IT, Open Source Development.\textbf{(\href{https://lantern.healthit.gov/?tab=dashboard_tab}{Lantern})}
+        \end{onecolentry}
+        \vspace{0.1cm}
+
+        %% ---- R3 ----
+        \begin{twocolentry}{
+            \textbf{June 2023 - Apr 2024}
+        }
+            \textbf{Pre-Sales Engineer}, R3 -- Manhattan, NY\end{twocolentry}
+
+
+        \begin{onecolentry}
+             • Led pre-sales technical activities and customer-facing solution demonstrations that resulted in closing a \$4 million enterprise deal with major financial services clients, conducting comprehensive technical presentations to C-level executives and IT leadership teams.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Designed and executed proof-of-concepts (POCs) for enterprise blockchain solutions, creating detailed customer analysis reports and technical proposals that aligned cutting-edge technology capabilities with specific business requirements and regulatory compliance needs.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Managed technical demonstration processes for distributed ledger platforms, presenting complex technical concepts to diverse audiences including technical teams, business stakeholders, and compliance officers across multiple enterprise customers.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Evaluated and recommended cloud and AI toolset strategies (AWS vs.\ GCP vs.\ Azure) for client engagements, performing build-versus-buy assessments that optimized delivery timelines and reduced infrastructure costs.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated with sales teams to identify technical opportunities and drive account growth, providing technical expertise and solution architecture that supported enterprise sales cycles and customer adoption initiatives.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Developed reusable architectural patterns, reference implementations, and comprehensive technical documentation for enterprise customers, ensuring accurate implementation guidance for complex multi-cloud deployments.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Kotlin, Python, Go, R3 Corda, AWS, GCP, Kubernetes, Docker, Terraform, Jenkins, GitHub Actions, Distributed Systems, Infrastructure as Code
+        \end{onecolentry}
+        \vspace{0.1cm}
+
+        %% ---- Akamai ----
+        \begin{twocolentry}{
+            \textbf{Nov 2021 - July 2022}
+        }
+            \textbf{Solutions Architect}, Akamai Technologies Inc. -- Bengaluru, India \end{twocolentry}
+        \begin{onecolentry}
+            • Drove pre-sales strategy initiatives by designing and demonstrating cutting-edge services that address complex web performance and security challenges for global enterprise customers, utilizing unified CDN and security platform capabilities to secure and influence \$20M+ in enterprise deals.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Led technical demonstrations and proof-of-concepts for global enterprise customers, presenting Akamai's technology solutions including CDN optimization, DDoS mitigation, Web Application Firewall (WAF), and performance enhancement to diverse technical and business audiences.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Created comprehensive customer analysis reports and technical proposals for enterprise accounts, providing detailed build-versus-buy recommendations that align Akamai's global platform capabilities with customer business objectives and technical requirements.
+        \end{onecolentry}
+                \begin{onecolentry}
+             • Managed technical proposal processes for large-scale enterprise deployments, ensuring accurate technical information and solution architecture that addressed customer performance, security, and reliability requirements.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated with product engineering and customer success teams to deliver tailored solutions that met specific customer requirements while maintaining platform scalability and security standards for global enterprise deployments.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: CDN Technologies, DDoS Mitigation, Web Performance Optimization, Security Analysis, Automation Scripting, Global Infrastructure Management.
+        \end{onecolentry}
+
+        %% ---- Cognizant ----
+        \begin{twocolentry}{
+            \textbf{Aug 2020 – Nov 2021}
+        }
+            \vspace{2 pt }
+            \textbf{Application Security Engineer}, Cognizant Technology Solutions -- Bengaluru, India\end{twocolentry}
+        \begin{onecolentry}
+             • Provided technical consulting and security solution recommendations to enterprise customers, conducting comprehensive security assessments and vulnerability analysis that reduced system vulnerabilities by 30\% across multiple enterprise environments.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Developed customer-facing technical presentations and security solution demonstrations, presenting complex cybersecurity concepts to diverse audiences including IT leadership, security teams, and business stakeholders.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated with customer technical teams to implement security best practices and compliance frameworks, providing technical guidance and solution architecture that aligned security requirements with business objectives.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Created technical documentation and security assessment reports for enterprise customers, ensuring accurate technical recommendations and implementation guidance for security enhancement initiatives.
+        \end{onecolentry}
+
+        \begin{onecolentry}
+             • Environment: Linux Administration, Python, DevOps, CI/CD Pipelines, Security Auditing, Vulnerability Assessment, Penetration Testing, Automation Scripting, Incident Response.
+        \end{onecolentry}
+    \vspace{2 pt }
+        \section{Education}
+        \vspace{2 pt }
+        \begin{twocolentry}{
+            \textbf{Sept 2022 - May 2024}
+        }
+            \textbf{ • Rutgers University}, MS in Computer Science \kern 1.5 pt \textbf{GPA:} 3.875/4.0  \end{twocolentry}
+
+        \begin{twocolentry}{
+            \textbf{Aug 2016 - June 2020}
+        }
+            \textbf{ • PES University}, B.Tech in Computer Science \kern 1.5 pt \textbf{GPA:} 3.5/4.0  \end{twocolentry}
+        \begin{onecolentry}
+
+                        \vspace{0.4cm}
+    \section{Paid Side-Projects}
+            \vspace{2 pt }
+                    \begin{twocolentry}{
+            \textbf{Sep 2024 - Jan 2025}
+        }
+            \textbf{AI Security Researcher}, Ackuity.ai -- Fairfax, VA\end{twocolentry}
+
+        \begin{onecolentry}
+             • Spearheaded the development of enterprise-grade access control frameworks for Amazon Bedrock, implementing sophisticated metadata filtering and role-based authentication systems that enable secure doctor-patient data governance while maintaining full LLM functionality and reducing unauthorized data access risks by 90\%.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Developed enterprise-grade security platform using full-stack architecture, implementing React-based dashboards and Python backend services for Amazon Bedrock integration that increased developer productivity by 200\%.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Technical papers published on (click here - \href{https://medium.com/@sreenikethaathreya}{Medium}) and (click here - \href{https://www.linkedin.com/pulse/building-permission-aware-genai-application-amazon-bedrock-aathreya-g7nme/?trackingId=ZGT3oqgALmX0LmAKzvznVA%3D%3D}{LinkedIn}) with a combined total of 3000 reads.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Conducted extensive vulnerability assessments and penetration testing on LLM systems, identifying and mitigating potential security threats in AI-powered healthcare applications while ensuring HIPAA compliance and data privacy regulations.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Amazon Bedrock, Python, AI Security, LLM Security, Healthcare Data Governance, HIPAA Compliance, Vulnerability Assessment, Technical Writing.
+
+        \end{onecolentry}
+                \vspace{0.4cm}
+        \begin{twocolentry}{
+            \textbf{Sept 2024 - Dec 2024}
+        }
+            \textbf{Lead Software Developer}, Amore Nidra Inc. -- Los Angeles, CA\end{twocolentry}(\href{https://amorenidra.com}{Click here})
+
+        \begin{onecolentry}
+             • Architected and developed complete e-commerce platform from scratch, implementing comprehensive monitoring and alerting systems that reduced page load times by 60\% and created streamlined automated workflows resulting in 70\% faster operational processes.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Designed and implemented custom Shopify applications and seamless third-party integrations using Node.js, GraphQL APIs, and advanced JavaScript frameworks, delivering measurable business impact with 45\% increase in average order value and remarkable 200\% increase in online sales revenue.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Implemented automated performance monitoring and real-time analytics dashboards that enhanced system reliability and user engagement, demonstrating end-to-end system lifecycle management.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Built comprehensive testing framework with unit, integration, and end-to-end tests, maintaining 95\%+ code coverage and automated CI/CD deployment through GitHub Actions.
+        \end{onecolentry}
+
+        \begin{onecolentry}
+             • Environment: Shopify, Liquid, Node.js, GraphQL, JavaScript, CSS3, Payment Gateway APIs, E-commerce Analytics, SEO Optimization, Customer Analytics.
+        \end{onecolentry}
+             \vspace{2 pt }
+
+        \vspace{0.4cm}
+        \vspace{0.4cm}
+\section{Projects}
+    \vspace{2 pt}
+\end{onecolentry}
+\textbf{\href{https://github.com/daedalus-s}{Click here for Github}}
+\begin{onecolentry}
+     • \textbf{AI-Native Medical Content Platform:} Architected and delivered full-stack AI-native application using Python/FastAPI backend with React/TypeScript frontend, integrating Anthropic foundation models for automated content generation. Designed cloud-native architecture with comprehensive technical documentation and CI/CD deployment.(\href{https://medbloggen.xyz}{Click here})
+\end{onecolentry}
+\begin{onecolentry}
+     • \textbf{RAG-Powered E-commerce Solution:} Built scalable, event-driven e-commerce platform leveraging LLM orchestration with embeddings-based retrieval for conversational product search across 15,000+ items. Implemented agentic workflow architecture with Python backend, TypeScript frontend, and integrated foundation models for intelligent user interactions.(\href{https://prorecsa.co}{Click here})
+\end{onecolentry}
+\begin{onecolentry}
+     • \textbf{Enterprise Agentic AI Framework:} Designed comprehensive solution architecture for multi-agent AI system using Model Context Protocol, featuring stateful LLM orchestration with multi-agent coordination patterns, RESTful API design, and enterprise-grade security. Created detailed technical documentation and implementation guides for client delivery.(\href{https://github.com/daedalus-s/dota2-mcp-server}{Click here})
+\end{onecolentry}
+\begin{onecolentry}
+     • \textbf{Cloud-Native AI Security Platform:} Architected distributed, scalable system for AI governance with role-based access control, implementing Infrastructure-as-Code with Terraform. Delivered complete solution including technical specifications, architecture diagrams, and deployment automation for enterprise clients.(\href{https://github.com/daedalus-s/bedrock-acl-metadata}{Click here})
+\end{onecolentry}
+\vspace{2 pt}
+        \vspace{2 pt }
+
+\end{document}
