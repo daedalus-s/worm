@@ -1,0 +1,4 @@
+{
+  "name": "worm",
+  "install": "bash .cursor/install.sh"
+}
