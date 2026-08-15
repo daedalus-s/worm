@@ -1,4 +1,12 @@
-import { Agent, CursorAgentError, type ModelSelection, type SDKMessage } from "@cursor/sdk";
+import {
+  Agent,
+  Cursor,
+  CursorAgentError,
+  type ModelListItem,
+  type ModelParameterValue,
+  type ModelSelection,
+  type SDKMessage,
+} from "@cursor/sdk";
 import { parseAgentOutput, type TailoredOutput } from "./parse";
 
 export type TailoringResult = TailoredOutput & {
@@ -16,16 +24,157 @@ export type ProgressEvent =
 
 const DEFAULT_MODEL = "composer-2.5";
 const HIGH_PRIORITY_MODEL = "grok-4.6";
+const CATALOG_TTL_MS = 10 * 60 * 1000;
 
-function selectModel(highPriority: boolean): ModelSelection {
-  if (highPriority) {
-    return {
-      id: process.env.CURSOR_HIGH_PRIORITY_MODEL?.trim() || HIGH_PRIORITY_MODEL,
-      params: [{ id: "effort", value: "high" }],
-    };
+type ResolvedModel = {
+  model: ModelSelection;
+  label: string;
+};
+
+let catalogCache: { at: number; items: ModelListItem[] } | null = null;
+
+function envId(name: string, fallback: string): string {
+  return process.env[name]?.trim() || fallback;
+}
+
+async function loadCatalog(apiKey: string): Promise<ModelListItem[]> {
+  if (catalogCache && Date.now() - catalogCache.at < CATALOG_TTL_MS) {
+    return catalogCache.items;
+  }
+  const items = await Cursor.models.list({ apiKey });
+  catalogCache = { at: Date.now(), items };
+  return items;
+}
+
+function findModel(catalog: ModelListItem[], id: string): ModelListItem | undefined {
+  const needle = id.toLowerCase();
+  return (
+    catalog.find((model) => model.id.toLowerCase() === needle) ||
+    catalog.find((model) => (model.aliases ?? []).some((alias) => alias.toLowerCase() === needle))
+  );
+}
+
+function highVariantScore(displayName: string): number {
+  const name = displayName.toLowerCase();
+  if (/\bxhigh\b/.test(name)) return 50;
+  if (!/\bhigh\b/.test(name)) return 0;
+  // Prefer "Grok 4.6 High" over "Grok 4.6 High Fast" for high-priority runs.
+  return /\bfast\b/.test(name) ? 80 : 90;
+}
+
+function pickVariant(
+  model: ModelListItem,
+  preferHigh: boolean,
+): { params?: ModelParameterValue[]; label: string } {
+  const variants = model.variants ?? [];
+  if (preferHigh && variants.length) {
+    let best = variants[0];
+    let bestScore = -1;
+    for (const variant of variants) {
+      const score = highVariantScore(variant.displayName);
+      if (score > bestScore) {
+        best = variant;
+        bestScore = score;
+      }
+    }
+    if (bestScore > 0) {
+      return { params: best.params, label: best.displayName };
+    }
   }
 
-  return { id: process.env.CURSOR_MODEL?.trim() || DEFAULT_MODEL };
+  const fallback = variants.find((variant) => variant.isDefault) ?? variants[0];
+  if (fallback) {
+    return { params: fallback.params, label: fallback.displayName };
+  }
+
+  if (preferHigh) {
+    const effort = model.parameters?.find((parameter) => parameter.id === "effort");
+    const high = effort?.values.find((value) => value.value === "high");
+    const fast = model.parameters?.find((parameter) => parameter.id === "fast");
+    const params: ModelParameterValue[] = [];
+    if (high) params.push({ id: "effort", value: high.value });
+    const fastTrue = fast?.values.find((value) => value.value === "true");
+    if (fastTrue) params.push({ id: "fast", value: fastTrue.value });
+    if (params.length) {
+      return { params, label: `${model.displayName || model.id} High` };
+    }
+  }
+
+  return { label: model.displayName || model.id };
+}
+
+function selectionFromModel(model: ModelListItem, preferHigh: boolean): ResolvedModel {
+  const picked = pickVariant(model, preferHigh);
+  return {
+    model: {
+      id: model.id,
+      ...(picked.params !== undefined ? { params: picked.params } : {}),
+    },
+    label: picked.label,
+  };
+}
+
+async function resolveModel(apiKey: string, highPriority: boolean): Promise<ResolvedModel> {
+  const defaultId = envId("CURSOR_MODEL", DEFAULT_MODEL);
+  const highId = envId("CURSOR_HIGH_PRIORITY_MODEL", HIGH_PRIORITY_MODEL);
+
+  let catalog: ModelListItem[] = [];
+  try {
+    catalog = await loadCatalog(apiKey);
+  } catch {
+    // Fall through to a conservative hardcoded variant if discovery fails.
+  }
+
+  if (!highPriority) {
+    const found = findModel(catalog, defaultId);
+    if (found) return selectionFromModel(found, false);
+    return { model: { id: defaultId }, label: defaultId };
+  }
+
+  const grok =
+    findModel(catalog, highId) ||
+    catalog.find((model) => /^grok-4\.6\b/i.test(model.id)) ||
+    catalog.find((model) => /grok\s*4\.6/i.test(model.displayName || ""));
+  if (grok) return selectionFromModel(grok, true);
+
+  const grok45 =
+    findModel(catalog, "grok-4.5") ||
+    catalog.find((model) => /grok\s*4\.5/i.test(model.displayName || ""));
+  if (grok45) {
+    const resolved = selectionFromModel(grok45, true);
+    return { ...resolved, label: `${resolved.label} (Grok 4.6 not in catalog)` };
+  }
+
+  const router = findModel(catalog, "auto-smart");
+  if (router) {
+    const intelligence = router.variants?.find((variant) =>
+      /intelligence/i.test(variant.displayName),
+    );
+    if (intelligence) {
+      return {
+        model: { id: router.id, params: intelligence.params },
+        label: `${intelligence.displayName} (Grok 4.6 not in catalog)`,
+      };
+    }
+  }
+
+  const composer = findModel(catalog, defaultId);
+  if (composer) {
+    const resolved = selectionFromModel(composer, false);
+    return { ...resolved, label: `${resolved.label} (Grok 4.6 not in catalog)` };
+  }
+
+  // Last resort: include both effort and fast so the pair can match a Grok variant.
+  return {
+    model: {
+      id: highId,
+      params: [
+        { id: "effort", value: "high" },
+        { id: "fast", value: "true" },
+      ],
+    },
+    label: "Grok 4.6 High",
+  };
 }
 
 function cloudOptions() {
@@ -70,11 +219,12 @@ export async function runTailoringAgent(
     );
   }
 
-  const model = selectModel(options.highPriority === true);
+  const resolved = await resolveModel(apiKey, options.highPriority === true);
+  const model = resolved.model;
   onProgress({
     type: "log",
     message: options.highPriority
-      ? "High-priority run: using Cursor Grok 4.6 High…"
+      ? `High-priority run: using ${resolved.label}…`
       : process.env.CURSOR_CLOUD_REPO_URL
         ? "Launching a Cursor cloud agent against the connected repo…"
         : "Launching a no-repo Cursor cloud agent…",

@@ -233,7 +233,7 @@ export default function HomePage() {
             <span>Skip cover letter</span>
           </label>
           <p className="hint">
-            High priority uses Cursor Grok 4.6 High. Skip cover letter if you only need a resume.
+            High priority uses Grok 4.6 High from your Cursor model catalog. Skip cover letter if you only need a resume.
           </p>
         </div>
       </form>
