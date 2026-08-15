@@ -1,3 +1,4 @@
+import { addApplication } from "@/server/applications";
 import { buildAgentPrompt } from "@/server/prompt";
 import { runTailoringAgent, type ProgressEvent } from "@/server/agent";
 
@@ -11,6 +12,7 @@ type GenerateBody = {
   jobDescription?: string;
   company?: string;
   role?: string;
+  highPriority?: boolean;
 };
 
 function sse(event: ProgressEvent): string {
@@ -53,7 +55,30 @@ export async function POST(request: Request) {
       };
 
       try {
-        await runTailoringAgent(prompt, send, request.signal);
+        const output = await runTailoringAgent(
+          prompt,
+          send,
+          request.signal,
+          body.highPriority === true,
+        );
+        try {
+          await addApplication({
+            company: body.company,
+            role: body.role,
+            jobDescription,
+            keywords: output.keywords,
+            resumeTex: output.resumeTex,
+            coverLetterTex: output.coverLetterTex,
+            agentId: output.agentId,
+            runId: output.runId,
+          });
+          send({ type: "log", message: "Saved this posting to the application tracker." });
+        } catch {
+          send({
+            type: "log",
+            message: "Resume is ready, but saving to the tracker failed.",
+          });
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown agent error.";
         send({ type: "error", message });

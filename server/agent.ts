@@ -1,5 +1,10 @@
-import { Agent, CursorAgentError, type SDKMessage } from "@cursor/sdk";
+import { Agent, CursorAgentError, type ModelSelection, type SDKMessage } from "@cursor/sdk";
 import { parseAgentOutput, type TailoredOutput } from "./parse";
+
+export type TailoringResult = TailoredOutput & {
+  agentId: string;
+  runId: string;
+};
 
 export type ProgressEvent =
   | { type: "log"; message: string }
@@ -8,6 +13,20 @@ export type ProgressEvent =
   | { type: "tool"; name: string; status: string }
   | { type: "done"; output: TailoredOutput; agentId: string; runId: string }
   | { type: "error"; message: string; retryable?: boolean };
+
+const DEFAULT_MODEL = "composer-2.5";
+const HIGH_PRIORITY_MODEL = "grok-4.6";
+
+function selectModel(highPriority: boolean): ModelSelection {
+  if (highPriority) {
+    return {
+      id: process.env.CURSOR_HIGH_PRIORITY_MODEL?.trim() || HIGH_PRIORITY_MODEL,
+      params: [{ id: "effort", value: "high" }],
+    };
+  }
+
+  return { id: process.env.CURSOR_MODEL?.trim() || DEFAULT_MODEL };
+}
 
 function cloudOptions() {
   const repoUrl = process.env.CURSOR_CLOUD_REPO_URL?.trim();
@@ -42,7 +61,8 @@ export async function runTailoringAgent(
   prompt: string,
   onProgress: (event: ProgressEvent) => void,
   signal?: AbortSignal,
-): Promise<void> {
+  highPriority = false,
+): Promise<TailoringResult> {
   const apiKey = process.env.CURSOR_API_KEY?.trim();
   if (!apiKey) {
     throw new Error(
@@ -50,19 +70,21 @@ export async function runTailoringAgent(
     );
   }
 
-  const modelId = process.env.CURSOR_MODEL?.trim() || "composer-2.5";
+  const model = selectModel(highPriority);
   onProgress({
     type: "log",
-    message: process.env.CURSOR_CLOUD_REPO_URL
-      ? "Launching a Cursor cloud agent against the connected repo…"
-      : "Launching a no-repo Cursor cloud agent…",
+    message: highPriority
+      ? "High-priority run: using Cursor Grok 4.6 High…"
+      : process.env.CURSOR_CLOUD_REPO_URL
+        ? "Launching a Cursor cloud agent against the connected repo…"
+        : "Launching a no-repo Cursor cloud agent…",
   });
 
   try {
     await using agent = await Agent.create({
       apiKey,
-      name: "Resume tailor",
-      model: { id: modelId },
+      name: highPriority ? "Resume tailor (high priority)" : "Resume tailor",
+      model,
       cloud: cloudOptions(),
     });
 
@@ -123,6 +145,11 @@ export async function runTailoringAgent(
       agentId: agent.agentId,
       runId: result.id,
     });
+    return {
+      ...output,
+      agentId: agent.agentId,
+      runId: result.id,
+    };
   } catch (error) {
     if (error instanceof CursorAgentError) {
       const retryHint = error.isRetryable ? " This failure looks retryable." : "";

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Nav } from "./components/Nav";
+import { playCompletionSound, unlockCompletionSound } from "./lib/completion-sound";
 
 type ProgressEvent =
   | { type: "log"; message: string }
@@ -48,6 +50,7 @@ export default function HomePage() {
   const [tab, setTab] = useState<Tab>("resume");
   const [copied, setCopied] = useState<string | null>(null);
   const [agentId, setAgentId] = useState<string | null>(null);
+  const [highPriority, setHighPriority] = useState(false);
 
   const activeTex = tab === "resume" ? output?.resumeTex : output?.coverLetterTex;
   const canSubmit = jobDescription.trim().length >= 40 && !running;
@@ -69,6 +72,7 @@ export default function HomePage() {
     setCopied(null);
     setAgentId(null);
     setLog(["Sending the job description to a Cursor cloud agent…"]);
+    void unlockCompletionSound();
 
     try {
       const response = await fetch("/api/generate", {
@@ -78,6 +82,7 @@ export default function HomePage() {
           jobDescription,
           company,
           role,
+          highPriority,
         }),
       });
 
@@ -143,6 +148,7 @@ export default function HomePage() {
         setAgentId(event.agentId);
         setTab("resume");
         pushLog("Overleaf resume and cover letter are ready.");
+        void playCompletionSound();
         break;
     }
   }
@@ -162,6 +168,7 @@ export default function HomePage() {
           Paste a job description. A Cursor cloud agent extracts keywords from the posting,
           maps them onto your real experience, and returns Overleaf LaTeX you can compile as-is.
         </p>
+        <Nav />
       </header>
 
       <form className="composer" onSubmit={onGenerate}>
@@ -178,7 +185,7 @@ export default function HomePage() {
 
         <div className="row">
           <label className="field">
-            <span>Company (optional)</span>
+            <span>Company</span>
             <input
               value={company}
               onChange={(event) => setCompany(event.target.value)}
@@ -199,8 +206,16 @@ export default function HomePage() {
           <button type="submit" disabled={!canSubmit}>
             {running ? "Cloud agent working…" : "Write Overleaf resume + cover letter"}
           </button>
+          <label className="priority-check">
+            <input
+              type="checkbox"
+              checked={highPriority}
+              onChange={(event) => setHighPriority(event.target.checked)}
+            />
+            <span>High priority</span>
+          </label>
           <p className="hint">
-            Uses <code>CURSOR_API_KEY</code>. Filter Cursor agents by Source → SDK to watch the run.
+            High priority uses Cursor Grok 4.6 High. Otherwise the default model is used.
           </p>
         </div>
       </form>
