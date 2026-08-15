@@ -145,9 +145,10 @@ To stop Worm later, click the PowerShell or Terminal window and press `Ctrl+C`. 
 2. Paste the full job description.
 3. Type the **company** and **role** if you know them. This helps the tracker later.
 4. Check **High priority** if this application matters more. That uses Cursor Grok 4.6 High. Leave it unchecked for a normal run.
-5. Click **Write Overleaf resume + cover letter**.
-6. Wait. This can take a few minutes. Keep the browser tab open. When it finishes, Worm plays a short chime and shows the text.
-7. Click **Copy Overleaf code** or **Download .tex**.
+5. Check **Skip cover letter** if you only want a resume.
+6. Click **Write Overleaf resume + cover letter** (or **Write Overleaf resume** if you skipped the letter).
+7. Wait. This can take a few minutes. Keep the browser tab open. When it finishes, Worm plays a short chime and shows the text.
+8. Click **Copy Overleaf code** or **Download .tex**.
 
 ### Turn that text into a PDF
 

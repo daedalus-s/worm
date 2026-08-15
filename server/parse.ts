@@ -36,18 +36,22 @@ function extractDocuments(text: string): string[] {
   return docs;
 }
 
-export function parseAgentOutput(raw: string): TailoredOutput {
+export function parseAgentOutput(
+  raw: string,
+  options?: { skipCoverLetter?: boolean },
+): TailoredOutput {
   const keywordsRaw = between(raw, MARKERS.keywords, MARKERS.resume);
   const resumeMarked = stripFence(between(raw, MARKERS.resume, MARKERS.cover));
   const coverMarked = stripFence(between(raw, MARKERS.cover));
 
   const documents = extractDocuments(raw);
   const resumeTex = resumeMarked || documents[0] || "";
-  const coverLetterTex =
-    coverMarked ||
-    documents.find((doc) => /cover letter|Hiring Team|Sincerely/i.test(doc) && doc !== resumeTex) ||
-    documents[1] ||
-    "";
+  const coverLetterTex = options?.skipCoverLetter
+    ? ""
+    : coverMarked ||
+      documents.find((doc) => /cover letter|Hiring Team|Sincerely/i.test(doc) && doc !== resumeTex) ||
+      documents[1] ||
+      "";
 
   const keywords = keywordsRaw
     .split(/[,\n]/)

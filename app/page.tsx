@@ -51,6 +51,7 @@ export default function HomePage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [agentId, setAgentId] = useState<string | null>(null);
   const [highPriority, setHighPriority] = useState(false);
+  const [skipCoverLetter, setSkipCoverLetter] = useState(false);
 
   const activeTex = tab === "resume" ? output?.resumeTex : output?.coverLetterTex;
   const canSubmit = jobDescription.trim().length >= 40 && !running;
@@ -83,6 +84,7 @@ export default function HomePage() {
           company,
           role,
           highPriority,
+          skipCoverLetter,
         }),
       });
 
@@ -147,7 +149,11 @@ export default function HomePage() {
         setOutput(event.output);
         setAgentId(event.agentId);
         setTab("resume");
-        pushLog("Overleaf resume and cover letter are ready.");
+        pushLog(
+          event.output.coverLetterTex
+            ? "Overleaf resume and cover letter are ready."
+            : "Overleaf resume is ready. Cover letter was skipped.",
+        );
         void playCompletionSound();
         break;
     }
@@ -204,7 +210,11 @@ export default function HomePage() {
 
         <div className="actions">
           <button type="submit" disabled={!canSubmit}>
-            {running ? "Cloud agent working…" : "Write Overleaf resume + cover letter"}
+            {running
+              ? "Cloud agent working…"
+              : skipCoverLetter
+                ? "Write Overleaf resume"
+                : "Write Overleaf resume + cover letter"}
           </button>
           <label className="priority-check">
             <input
@@ -214,8 +224,16 @@ export default function HomePage() {
             />
             <span>High priority</span>
           </label>
+          <label className="priority-check">
+            <input
+              type="checkbox"
+              checked={skipCoverLetter}
+              onChange={(event) => setSkipCoverLetter(event.target.checked)}
+            />
+            <span>Skip cover letter</span>
+          </label>
           <p className="hint">
-            High priority uses Cursor Grok 4.6 High. Otherwise the default model is used.
+            High priority uses Cursor Grok 4.6 High. Skip cover letter if you only need a resume.
           </p>
         </div>
       </form>
@@ -261,6 +279,7 @@ export default function HomePage() {
               type="button"
               className={tab === "cover" ? "active" : ""}
               onClick={() => setTab("cover")}
+              disabled={!output.coverLetterTex}
             >
               Cover-letter.tex
             </button>

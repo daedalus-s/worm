@@ -61,7 +61,7 @@ export async function runTailoringAgent(
   prompt: string,
   onProgress: (event: ProgressEvent) => void,
   signal?: AbortSignal,
-  highPriority = false,
+  options: { highPriority?: boolean; skipCoverLetter?: boolean } = {},
 ): Promise<TailoringResult> {
   const apiKey = process.env.CURSOR_API_KEY?.trim();
   if (!apiKey) {
@@ -70,20 +70,23 @@ export async function runTailoringAgent(
     );
   }
 
-  const model = selectModel(highPriority);
+  const model = selectModel(options.highPriority === true);
   onProgress({
     type: "log",
-    message: highPriority
+    message: options.highPriority
       ? "High-priority run: using Cursor Grok 4.6 High…"
       : process.env.CURSOR_CLOUD_REPO_URL
         ? "Launching a Cursor cloud agent against the connected repo…"
         : "Launching a no-repo Cursor cloud agent…",
   });
+  if (options.skipCoverLetter) {
+    onProgress({ type: "log", message: "Cover letter skipped for this application." });
+  }
 
   try {
     await using agent = await Agent.create({
       apiKey,
-      name: highPriority ? "Resume tailor (high priority)" : "Resume tailor",
+      name: options.highPriority ? "Resume tailor (high priority)" : "Resume tailor",
       model,
       cloud: cloudOptions(),
     });
@@ -132,10 +135,15 @@ export async function runTailoringAgent(
       // Artifacts are optional; the final assistant text is the source of truth.
     }
 
-    const output = parseAgentOutput(raw);
-    if (!output.resumeTex || !output.coverLetterTex) {
+    const output = parseAgentOutput(raw, { skipCoverLetter: options.skipCoverLetter });
+    if (!output.resumeTex) {
       throw new Error(
-        "The cloud agent finished but did not return complete Overleaf documents. Try again with a shorter job description.",
+        "The cloud agent finished but did not return a complete Overleaf resume. Try again with a shorter job description.",
+      );
+    }
+    if (!options.skipCoverLetter && !output.coverLetterTex) {
+      throw new Error(
+        "The cloud agent finished but did not return a complete Overleaf cover letter. Try again, or skip the cover letter.",
       );
     }
 

@@ -7,12 +7,14 @@ function readProfile(name: string): string {
   return readFileSync(path.join(PROFILE_DIR, name), "utf8");
 }
 
-export function loadProfileBundle(): string {
+export function loadProfileBundle(options?: { skipCoverLetter?: boolean }): string {
   const instructions = readProfile("AGENT_INSTRUCTIONS.md");
   const links = readProfile("LINKS.md");
   const experience = readProfile("EXPERIENCE.md");
   const resumeTemplate = readProfile("resume-template.tex");
-  const coverTemplate = readProfile("cover-letter-template.tex");
+  const coverTemplate = options?.skipCoverLetter
+    ? ""
+    : readProfile("cover-letter-template.tex");
 
   return [
     instructions,
@@ -27,11 +29,15 @@ export function loadProfileBundle(): string {
     "```latex",
     resumeTemplate,
     "```",
-    "",
-    "## Cover letter Overleaf template (cover-letter-template.tex)",
-    "```latex",
-    coverTemplate,
-    "```",
+    ...(options?.skipCoverLetter
+      ? []
+      : [
+          "",
+          "## Cover letter Overleaf template (cover-letter-template.tex)",
+          "```latex",
+          coverTemplate,
+          "```",
+        ]),
   ].join("\n");
 }
 
@@ -39,6 +45,7 @@ export function buildAgentPrompt(input: {
   jobDescription: string;
   company?: string;
   role?: string;
+  skipCoverLetter?: boolean;
 }): string {
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -47,16 +54,21 @@ export function buildAgentPrompt(input: {
   });
 
   return [
-    loadProfileBundle(),
+    loadProfileBundle({ skipCoverLetter: input.skipCoverLetter }),
     "",
     "## This application",
     `Today's date: ${today}`,
     input.company ? `Target company: ${input.company}` : "Target company: infer from the job description if present.",
     input.role ? `Target role: ${input.role}` : "Target role: infer from the job description if present.",
+    input.skipCoverLetter
+      ? "Cover letter: SKIP. Do not write a cover letter. Still include the <<<COVER_LETTER_TEX>>> marker, but leave that section empty."
+      : "Cover letter: required. Produce a full Overleaf cover letter.",
     "",
     "## Job description",
     input.jobDescription.trim(),
     "",
-    "Produce the three marked sections now.",
+    input.skipCoverLetter
+      ? "Produce <<<KEYWORDS>>> and <<<RESUME_TEX>>> now. Leave <<<COVER_LETTER_TEX>>> empty."
+      : "Produce the three marked sections now.",
   ].join("\n");
 }

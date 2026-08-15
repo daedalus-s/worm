@@ -13,6 +13,7 @@ type GenerateBody = {
   company?: string;
   role?: string;
   highPriority?: boolean;
+  skipCoverLetter?: boolean;
 };
 
 function sse(event: ProgressEvent): string {
@@ -45,6 +46,7 @@ export async function POST(request: Request) {
     jobDescription,
     company: body.company?.trim(),
     role: body.role?.trim(),
+    skipCoverLetter: body.skipCoverLetter === true,
   });
 
   const encoder = new TextEncoder();
@@ -55,12 +57,10 @@ export async function POST(request: Request) {
       };
 
       try {
-        const output = await runTailoringAgent(
-          prompt,
-          send,
-          request.signal,
-          body.highPriority === true,
-        );
+        const output = await runTailoringAgent(prompt, send, request.signal, {
+          highPriority: body.highPriority === true,
+          skipCoverLetter: body.skipCoverLetter === true,
+        });
         try {
           await addApplication({
             company: body.company,
