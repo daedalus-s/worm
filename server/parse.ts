@@ -10,13 +10,16 @@ const MARKERS = {
   cover: "<<<COVER_LETTER_TEX>>>",
 } as const;
 
-function between(source: string, start: string, end?: string): string {
+function section(source: string, start: string, ...stops: string[]): string {
   const index = source.indexOf(start);
   if (index < 0) return "";
   const rest = source.slice(index + start.length);
-  if (!end) return rest.trim();
-  const stop = rest.indexOf(end);
-  return (stop < 0 ? rest : rest.slice(0, stop)).trim();
+  let end = rest.length;
+  for (const stop of stops) {
+    const at = rest.indexOf(stop);
+    if (at >= 0 && at < end) end = at;
+  }
+  return rest.slice(0, end).trim();
 }
 
 function stripFence(block: string): string {
@@ -40,15 +43,24 @@ export function parseAgentOutput(
   raw: string,
   options?: { skipCoverLetter?: boolean },
 ): TailoredOutput {
-  const keywordsRaw = between(raw, MARKERS.keywords, MARKERS.resume);
-  const resumeMarked = stripFence(between(raw, MARKERS.resume, MARKERS.cover));
-  const coverMarked = stripFence(between(raw, MARKERS.cover));
+  const keywordsRaw = section(raw, MARKERS.keywords, MARKERS.resume, MARKERS.cover);
+  const resumeMarked = stripFence(section(raw, MARKERS.resume, MARKERS.cover, MARKERS.keywords));
+  const coverMarked = stripFence(section(raw, MARKERS.cover, MARKERS.resume, MARKERS.keywords));
 
   const documents = extractDocuments(raw);
-  const resumeTex = resumeMarked || documents[0] || "";
+  const resumeDocs = extractDocuments(resumeMarked);
+  const coverDocs = extractDocuments(coverMarked);
+
+  const resumeTex =
+    resumeDocs[0] ||
+    resumeMarked ||
+    documents.find((doc) => /Professional Summary|Work Experience/i.test(doc)) ||
+    documents[0] ||
+    "";
   const coverLetterTex = options?.skipCoverLetter
     ? ""
-    : coverMarked ||
+    : coverDocs[0] ||
+      coverMarked ||
       documents.find((doc) => /cover letter|Hiring Team|Sincerely/i.test(doc) && doc !== resumeTex) ||
       documents[1] ||
       "";
