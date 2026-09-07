@@ -1,0 +1,452 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot, % set margins without considering header and footer
+    top=1 cm, % seperation between body and page edge from the top
+    bottom=1 cm, % seperation between body and page edge from the bottom
+    left=2 cm, % seperation between body and page edge from the left
+    right=2 cm, % seperation between body and page edge from the right
+    footskip=1.0 cm, % seperation between body and footer
+    % showframe % for debugging
+]{geometry} % for adjusting page geometry
+\usepackage{titlesec} % for customizing section titles
+\usepackage{tabularx} % for making tables with fixed width columns
+\usepackage{array} % tabularx requires this
+\usepackage[dvipsnames]{xcolor} % for coloring text
+\definecolor{primaryColor}{RGB}{0, 0, 0} % define primary color
+\usepackage{enumitem} % for customizing lists
+\usepackage{fontawesome5} % for using icons
+\usepackage{amsmath} % for math
+\usepackage[
+    pdftitle={Sreeniketh's CV},
+    pdfauthor={Sreeniketh},
+    pdfcreator={LaTeX with RenderCV},
+    colorlinks=true,
+    urlcolor=primaryColor
+]{hyperref} % for links, metadata and bookmarks
+\usepackage[pscoord]{eso-pic} % for floating text on the page
+\usepackage{calc} % for calculating lengths
+\usepackage{bookmark} % for bookmarks
+\usepackage{lastpage} % for getting the total number of pages
+\usepackage{changepage} % for one column entries (adjustwidth environment)
+\usepackage{paracol} % for two and three column entries
+\usepackage{ifthen} % for conditional statements
+\usepackage{needspace} % for avoiding page brake right after the section title
+\usepackage{iftex} % check if engine is pdflatex, xetex or luatex
+
+% Ensure that generate pdf is machine readable/ATS parsable:
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+\usepackage{charter}
+
+% Some settings:
+\raggedright
+\AtBeginEnvironment{adjustwidth}{\partopsep0pt} % remove space before adjustwidth environment
+\pagestyle{empty} % no header or footer
+\setcounter{secnumdepth}{0} % no section numbering
+\setlength{\parindent}{0pt} % no indentation
+\setlength{\topskip}{0pt} % no top skip
+\setlength{\columnsep}{0.15cm} % set column seperation
+\pagenumbering{gobble} % no page numbering
+
+\titleformat{\section}{\needspace{0\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{0pt}\titlerule]
+
+\titlespacing{\section}{
+    % left space:
+    -1pt
+}{
+    % top space:
+    0.15 cm
+}{
+    % bottom space:
+    0.15 cm
+} % section title spacing
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\small$\bullet$}}$} % custom bullet points
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.05 cm,
+        parsep=0.05 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=0 cm + 10pt
+    ]
+}{
+    \end{itemize}
+} % new environment for highlights
+
+
+\newenvironment{highlightsforbulletentries}{
+    \begin{itemize}[
+        topsep=0.05 cm,
+        parsep=0.05 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=5pt
+    ]
+}{
+    \end{itemize}
+} % new environment for highlights for bullet entries
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{
+        0 cm + 0.00001 cm
+    }{
+        0 cm + 0.00001 cm
+    }
+}{
+    \end{adjustwidth}
+} % new environment for one column entries
+
+\newenvironment{twocolentry}[2][]{
+    \onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5 cm}
+    \begin{paracol}{2}
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry
+} % new environment for two column entries
+
+\newenvironment{threecolentry}[3][]{
+    \onecolentry
+    \def\thirdColumn{#3}
+    \setcolumnwidth{, \fill, 4.5 cm}
+    \begin{paracol}{3}
+    {\raggedright #2} \switchcolumn
+}{
+    \switchcolumn \raggedleft \thirdColumn
+    \end{paracol}
+    \endonecolentry
+} % new environment for three column entries
+
+\newenvironment{header}{
+    \setlength{\topsep}{0pt}\par\kern\topsep\centering\linespread{1.5}
+}{
+    \par\kern\topsep
+} % new environment for the header
+
+\newcommand{\placelastupdatedtext}{% \placetextbox{<horizontal pos>}{<vertical pos>}{<stuff>}
+  \AddToShipoutPictureFG*{% Add <stuff> to current page foreground
+    \put(
+        \LenToUnit{\paperwidth-2 cm-0 cm+0.05cm},
+        \LenToUnit{\paperheight-1.0 cm}
+    ){\vtop{{\null}\makebox[0pt][c]{
+        \small\color{gray}\textit{Last updated in August 2026}\hspace{\widthof{Last updated in August 2026}}
+    }}}%
+  }%
+}%
+
+% save the original href command in a new command:
+\let\hrefWithoutArrow\href
+
+% new command for external links:
+
+
+\begin{document}
+    \newcommand{\AND}{\unskip
+        \cleaders\copy\ANDbox\hskip\wd\ANDbox
+        \ignorespaces
+    }
+    \newsavebox\ANDbox
+    \sbox\ANDbox{$|$}
+
+    \begin{header}
+        \fontsize{20 pt}{20 pt}\selectfont Sreeniketh Aathreya
+        \vspace{2 pt }\begin{onecolentry}
+        \centering
+                                \fontsize{10 pt}{10 pt}\selectfont Software Engineer / Solutions Architect
+        \end{onecolentry}
+
+        \vspace{2 pt }
+        \normalsize
+        \mbox{\hrefWithoutArrow{https://sreenikethaathreya.com}{sreenikethaathreya.com}}%
+        \kern 1.0 pt%
+        \AND%
+        \kern 1.5 pt%
+        \mbox{\hrefWithoutArrow{mailto:sreenikethaathreya@gmail.com}{sreenikethaathreya@gmail.com}}%
+        \kern 1.5 pt%
+        \AND%
+        \kern 1.5 pt%
+        \mbox{\hrefWithoutArrow{tel:+1-571-279-7924}{+1-571-279-7924}}%
+        \kern 1.5 pt%
+        \AND%
+        \kern 1.0 pt%
+        \mbox{\hrefWithoutArrow{https://www.linkedin.com/in/sreeniketh-aathreya-16800b122/}{linkedin.com/in/sreeniketh-aathreya}}%
+        \kern 1.0 pt%
+        \AND%
+    \end{header}
+
+    \vspace{2 pt }
+
+
+    \section{Professional Summary}
+        \vspace{2 pt }
+        \begin{onecolentry}
+            • Solutions Architect and AI Labs Lead with over 7 years building and scaling production systems in Python, React, AWS, and cloud-native platforms; appointed AI Labs Lead for lean, creative AI solutions that scale.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Proven ability to architect, own, and deliver platform-scale projects end to end: 20+ client engagements from discovery through delivery, plus event-driven healthcare platforms processing millions of API calls daily at 99.9\% uptime.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Strong background in data modeling, system design, and modern architecture patterns (microservices, API-first, event-driven) across healthcare spend, financial services, and PE portfolio operations.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Hands-on AI/ML for automation and intelligent data transformation: foundation models, embeddings, LangChain, Vertex AI, RAG, and org-wide GenDD delivery automation (347 AI hours reclaimed / month, 75\% productivity gain, $<$3\% defect rate).
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Major contributor to a health benefits CRM with spend and plan dashboards across benefit years for PE firms, portfolio companies, brokers, and CHROs --- React, FastAPI, PostgreSQL, Cloud Run.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Platform sensibility for extensible, compliant solutions: HIPAA, 21st Century Cures Act, FHIR interoperability, and industry-compliance-aware delivery across 100+ PE portfolio companies.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Track record of modernizing processes and architecting critical systems for scale, accuracy, and performance, including build-versus-buy evaluation across AWS, GCP, and Azure.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Strong communication, collaboration, and stakeholder management with C-level executives, IT leadership, PE stakeholders, and clinical teams; product mindset focused on impact, reliability, and customer value.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Continuous delivery and modern engineering: GitHub Actions, Jenkins, Terraform, Docker, Kubernetes, CI/CD, Agile/Scrum, and high-velocity prototyping through architecture handoff.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Technical stack includes Python, React, Node.js, FastAPI, MongoDB, PostgreSQL, DynamoDB, AWS (Lambda, S3, API Gateway, CloudWatch, IAM), and GCP (Cloud Run, Cloud SQL, BigQuery).
+        \end{onecolentry}
+        \begin{onecolentry}
+                \textbf{•F1/OPT, H1B lottery picked}
+        \end{onecolentry}
+
+    \vspace{2 pt }
+
+    \section{Technical Skills}
+    \vspace{2 pt }
+    \begin{onecolentry}
+    \textbf{Languages and Frameworks:} Python, React, JavaScript, TypeScript, SQL, Node.js, FastAPI, Go(GOLANG), Kotlin, Bash, C, C++, Java, YAML
+    \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Operating Systems:} Linux, Windows, Unix, Ubuntu.
+    \end{onecolentry}
+    \begin{onecolentry}
+         \textbf{Web Technologies:} React, Node.js, FastAPI, REST, GraphQL, JavaScript, HTML, CSS, RabbitMQ, Vite, Tailwind CSS, Spring, PHP, WordPress, RShiny, XML
+    \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Database Management:} MongoDB, PostgreSQL, DynamoDB, MySQL, Oracle, MS Access, RESTful APIs, GraphQL
+    \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Cloud Computing Tools:}
+AWS CLI, EC2, RDS, Lambda, S3, DynamoDB, API Gateway, CloudWatch, CloudFormation, ELB, ElastiCache, Aurora, IAM, Bedrock, GCP CLI, Cloud Run, Cloud SQL, Secret Manager, Vertex AI, BigQuery, AI Model Garden, App Engine, Prometheus, Grafana, Git-Lab, Docker, Ansible Tower, Terraform, Jenkins, Helm, GitHub, Databricks, Github Actions, Kubernetes.
+    \end{onecolentry}
+    \begin{onecolentry}
+         \textbf{AI Integrations:} LangChain, embeddings, RAG, Anthropic, Gemini Enterprise, Google ADK, MCP, Llama3, Fireworks.ai, Pinecone, TensorFlow
+    \end{onecolentry}
+    \begin{onecolentry}
+        \textbf{Architecture:} Microservices, API-first design, event-driven systems, data modeling, system design, platform-scale architecture, solution diagramming, build-vs-buy evaluation
+    \end{onecolentry}
+        \begin{onecolentry}
+     \textbf{Other:} HIPAA Compliance, FHIR Standards, Healthcare Interoperability, Regulatory Compliance, Technical Solution Design, System Integration, Performance Optimization, Scalability Planning, Enterprise Architecture, TCP/IP, DNS, TLS/SSL, HTTP/HTTPS, CDN Architecture, Edge Computing, WAF, Continuous Delivery, Stakeholder Management.
+    \end{onecolentry}
+
+    \vspace{2 pt }
+    \section{Certifications}
+        \vspace{2 pt }
+        \begin{samepage}
+            \begin{onecolentry}
+                \textbf{AWS Certified Solutions Architect – Associate} : \href{https://cp.certmetrics.com/amazon/en/public/verify/credential/SNBY48EBJJVE1SWX}{Certmetrics}(2020-12-12 to 2023-12-12)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified Developer – Associate} : \href{https://www.credly.com/badges/b8106fbd-d3d1-4204-8cdf-e708798fd582/public_url}{Credly and AWS}(2021-09-03  to 2024-09-03)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified Data Engineer – Associate}
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{AWS Certified AI Practitioner} : \href{https://www.credly.com/badges/451b7ba5-8be1-4a8e-bbec-ade26627a6b6/public_url}{Credly} and \href{https://cp.certmetrics.com/amazon/en/public/verify/credential/495f0d9853874bf9a33c17f8e89ce131}{Certmetrics}(2024-09-30 to 2027-09-30)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{GCP Certified Professional Data Engineer} : \href{https://www.credly.com/badges/977e96d9-12e7-4f6c-b8a7-df71fb7153b8/public_url}{Credly}(2026-01-16 to 2028-01-16)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{GCP Certified Professional Machine Learning Engineer} : \href{https://www.credly.com/badges/a6965347-09ea-4d8f-b398-0e151407160d/public_url}{Credly}(2025-11-26 to 2027-11-26)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{Databricks Lakehouse Fundamentals} : \href{https://scl.io/FXGKS0u}{Databricks}(2024-08-27 to 2026-08-27)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{Databricks Generative AI Fundamentals} \href{https://sgq.io/3uIFGNi}{Databricks}(2024-08-26 to 2026-08-26)
+            \end{onecolentry}
+            \begin{onecolentry}
+                \textbf{Corda Certified Developer} : \href{https://www.credly.com/badges/7f29d39c-34b6-4de9-b07d-e10f1090a335/linked_in_profile}{Credly}
+            \end{onecolentry}
+        \end{samepage}
+
+
+    \vspace{0.5cm}
+    \section{Work Experience}
+        \vspace{0.1cm}
+
+        %% ---- HatchWorks AI (NEW) ----
+        \begin{twocolentry}{
+            \textbf{November 2025 - Present}
+        }
+            \textbf{Solution Architect \& AI Labs Lead} HatchWorks AI -- Remote, US\end{twocolentry}
+
+        \begin{onecolentry}
+             • Partnered with the CTO to architect, own, and deliver 20+ platform-scale client engagements from discovery through delivery: system design, data modeling, staffing estimates, and scoped proposals for AI-native and cloud-native production systems.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Major contributor to a private health benefits CRM serving PE firms, portfolio companies, medical and pharmacy plan brokers, benefits advisors, benefits consultants, and CHROs, delivering spend and plan dashboards across multiple benefit years so PE stakeholders can see healthcare details across their full portfolio.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Designed the CRM data model and full-stack platform --- React 19, Vite, TypeScript, FastAPI, SQLAlchemy, Pydantic, PostgreSQL 15 on Cloud SQL, Alembic migrations, Firebase Auth, Cloud Run, GCS, Terraform, and GitHub Actions continuous delivery with quality gates and smoke tests.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Designed AI-native workflows for automation and intelligent data transformation using foundation models, embeddings, agentic orchestration, LangChain, and Vertex AI, then handed stable architectures to full-stack, data, and agentic engineering teams.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated with private-equity stakeholders to modernize processes across 100+ portfolio companies, building extensible, industry-compliance-aware software that served a multitude of roles.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Major contributor in establishing \textbf{GenDD}\href{https://hatchworks.com/generative-driven-development/}{\textbf{(Click here)}} --- organization-wide AI delivery automation for 150+ software-development tasks. 347 AI Hrs Reclaimed / Month. 75\% productivity gain while maintaining $<$3\% defect rate.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Python, TypeScript, React 19, Vite, FastAPI, SQLAlchemy, Pydantic, PostgreSQL, Alembic, Firebase Auth, Terraform, AWS, GCP (Vertex AI, BigQuery, Cloud Run, Cloud SQL, Secret Manager, GCS), Docker, CI/CD, GitHub Actions, Kubernetes, LangChain, Gemini, Anthropic, Agile/Scrum.
+        \end{onecolentry}
+
+        \vspace{0.1cm}
+
+        %% ---- i-Link Solutions ----
+        \begin{twocolentry}{
+            \textbf{Dec 2024 - November 2025}
+        }
+            \textbf{Software Engineer}, i-Link Solutions -- Chantilly, VA\end{twocolentry}
+
+
+        \begin{onecolentry}
+             • Led technical solutions for \href{https://lantern.healthit.gov/?tab=dashboard_tab}{Lantern}, an ONC HealthIT open-source FHIR API monitoring platform that connects healthcare providers, payers, and government health agencies --- foundational integration infrastructure with reliability as a first-class requirement.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Architected event-driven, cloud-native production systems that process millions of healthcare API calls daily with 99.9\% uptime, designing critical paths for scale, accuracy, and performance under HIPAA and 21st Century Cures Act constraints.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Presented system design and product functionality to C-level executives, IT leadership, and clinical teams, aligning interoperability requirements with customer value and account growth.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Mentored junior engineers on architecture, microservices, and Agile delivery in a high-velocity environment spanning a wide surface area of capabilities, systems, and support scenarios.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Go, Python, PostgreSQL, RabbitMQ, Docker, Kubernetes, Microservices, event-driven systems, Healthcare IT, FHIR, Open Source (\href{https://github.com/onc-healthit/lantern-back-end}{lantern-back-end}).
+        \end{onecolentry}
+        \vspace{0.1cm}
+
+        %% ---- R3 ----
+        \begin{twocolentry}{
+            \textbf{June 2023 - Apr 2024}
+        }
+            \textbf{Pre-Sales Engineer}, R3 -- Manhattan, NY\end{twocolentry}
+
+
+        \begin{onecolentry}
+             • Closed a \$4 million enterprise deal with major financial services clients by owning technical pre-sales: system design walkthroughs, POCs, and stakeholder management with C-level executives and IT leadership.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Designed and executed platform-scale POCs for enterprise distributed-ledger systems, producing customer analysis reports that aligned product functionality with regulatory compliance and business requirements.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Evaluated AWS vs.\ GCP vs.\ Azure and performed build-versus-buy assessments that optimized delivery timelines and reduced infrastructure cost for multi-cloud financial platforms.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Kotlin, Python, Go, R3 Corda, AWS, GCP, Kubernetes, Docker, Terraform, Jenkins, GitHub Actions, Distributed Systems, Infrastructure as Code
+        \end{onecolentry}
+        \vspace{0.1cm}
+
+        %% ---- Akamai ----
+        \begin{twocolentry}{
+            \textbf{Nov 2021 - July 2022}
+        }
+            \textbf{Solutions Architect}, Akamai Technologies Inc. -- Bengaluru, India \end{twocolentry}
+        \begin{onecolentry}
+            • Drove platform-scale pre-sales for CDN, security, and web performance, influencing \$20M+ in enterprise deals by designing solutions that made internet and application experiences faster, more reliable, and more secure.
+        \end{onecolentry}
+        \begin{onecolentry}
+            • Led technical demonstrations and POCs --- CDN optimization, DDoS mitigation, WAF, and performance --- and wrote customer analysis reports with build-versus-buy recommendations for global infrastructure.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Collaborated across product engineering and customer success to deliver tailored, extensible architectures that met performance, security, and reliability requirements for large-scale enterprise deployments.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: CDN Technologies, DDoS Mitigation, Web Performance Optimization, Security Analysis, Automation Scripting, Global Infrastructure Management.
+        \end{onecolentry}
+
+        %% ---- Cognizant ----
+        \begin{twocolentry}{
+            \textbf{Aug 2020 – Nov 2021}
+        }
+            \vspace{2 pt }
+            \textbf{Application Security Engineer}, Cognizant Technology Solutions -- Bengaluru, India\end{twocolentry}
+        \begin{onecolentry}
+             • Provided technical consulting and security assessments that reduced system vulnerabilities by 30\% across multiple enterprise environments, improving reliability of production systems.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Delivered customer-facing security presentations and compliance guidance to IT leadership, security teams, and business stakeholders, aligning controls with customer value.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Linux Administration, Python, DevOps, CI/CD Pipelines, Security Auditing, Vulnerability Assessment, Penetration Testing, Automation Scripting, Incident Response.
+        \end{onecolentry}
+    \vspace{2 pt }
+        \section{Education}
+        \vspace{2 pt }
+        \begin{twocolentry}{
+            \textbf{Sept 2022 - May 2024}
+        }
+            \textbf{ • Rutgers University}, MS in Computer Science \kern 1.5 pt \textbf{GPA:} 3.875/4.0  \end{twocolentry}
+
+        \begin{twocolentry}{
+            \textbf{Aug 2016 - June 2020}
+        }
+            \textbf{ • PES University}, B.Tech in Computer Science \kern 1.5 pt \textbf{GPA:} 3.5/4.0  \end{twocolentry}
+
+                        \vspace{0.4cm}
+    \section{Paid Side-Projects}
+            \vspace{2 pt }
+                    \begin{twocolentry}{
+            \textbf{Sep 2024 - Jan 2025}
+        }
+            \textbf{AI Security Researcher}, Ackuity.ai -- Fairfax, VA\end{twocolentry}
+
+        \begin{onecolentry}
+             • Built access-control and data-modeling frameworks for Amazon Bedrock Knowledge Bases --- S3 object metadata, ingestion-pipeline Lambda, and Pinecone metadata filtering --- so one document store can serve multiple departments with RBAC over doctor-patient data, reducing unauthorized access risk by 90\% while remaining HIPAA-aware.
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Shipped React dashboards and a Python backend for Bedrock that increased developer productivity by 200\%; wrote the permission-aware GenAI architecture on \href{https://medium.com/@sreenikethaathreya/building-a-permission-aware-genai-application-on-amazon-bedrock-8fdc2410dd43}{Medium} and \href{https://www.linkedin.com/pulse/building-permission-aware-genai-application-amazon-bedrock-aathreya-g7nme/}{LinkedIn Pulse} ($\sim$3000 combined reads).
+        \end{onecolentry}
+        \begin{onecolentry}
+             • Environment: Amazon Bedrock, Python, React, AWS Lambda, Pinecone, AI Security, Healthcare Data Governance, HIPAA Compliance, Technical Writing.
+        \end{onecolentry}
+
+        \vspace{0.4cm}
+\section{Projects}
+    \vspace{2 pt}
+\textbf{\href{https://github.com/daedalus-s}{Click here for Github}}
+\begin{onecolentry}
+     • \textbf{RAG-Powered E-commerce / RAGOps:} Serverless AWS platform for conversational product search over $\sim$15,000 catalog items --- React on S3 + CloudFront; Lambda layers for embed, retrieve, and generate; API Gateway; Pinecone; Voyage AI embeddings; Anthropic Claude; DynamoDB; CloudWatch; GitHub Actions. Intelligent data retrieval framed as RAGOps (development, deployment, monitoring, continuous improvement). (\href{https://prorecsa.co}{prorecsa.co}) (\href{https://medium.com/@sreenikethaathreya/from-rags-to-riches-bba8a671d5e6}{Medium})
+\end{onecolentry}
+\begin{onecolentry}
+     • \textbf{Cloud-Native AI Security Platform:} Role-based access control for Amazon Bedrock Knowledge Bases so one KB serves multiple tenants without a store per department --- S3 metadata, custom ingestion Lambda copying \texttt{x-amz-meta-role} onto chunks, and post-ingestion Pinecone updates. (\href{https://github.com/daedalus-s/bedrock-acl-metadata}{GitHub})
+\end{onecolentry}
+\begin{onecolentry}
+     • \textbf{Enterprise Agentic AI Framework:} Model Context Protocol (JSON-RPC) server with HTTP POST + SSE tool-calling that turns Claude Desktop into a stateful multi-agent client --- player/search analysis, matchup matrices, confidence-scored recommendations --- Node 18+, TypeScript. (\href{https://github.com/daedalus-s/dota2-mcp-server}{GitHub}) (\href{https://www.youtube.com/watch?v=op2gTYyFb5U}{YouTube})
+\end{onecolentry}
+\begin{onecolentry}
+     • \textbf{Cloud Resume Challenge:} Production AWS static site with CloudFront + ACM HTTPS, Route 53, Lambda + API Gateway + DynamoDB visitor counter, CodePipeline/CodeBuild, CloudWatch, X-Ray, WAF, and IAM. (\href{https://sreenikethaathreya.com}{sreenikethaathreya.com}) (\href{https://medium.com/@sreenikethaathreya/cloud-resume-challenge-c4f17c3d53ff}{Medium})
+\end{onecolentry}
+\vspace{2 pt}
+
+\end{document}
