@@ -113,7 +113,7 @@ export default function DashboardPage() {
   return (
     <main className="shell">
       <header className="masthead">
-        <p className="kicker">Sreeniketh Aathreya · application atelier</p>
+        <p className="kicker">Manognya Pradeep · application atelier</p>
         <h1>Dashboard</h1>
         <p className="lede">
           Companies and roles you have generated materials for the most, plus how often a

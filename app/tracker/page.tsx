@@ -113,7 +113,7 @@ export default function TrackerPage() {
   return (
     <main className="shell">
       <header className="masthead">
-        <p className="kicker">Sreeniketh Aathreya · application atelier</p>
+        <p className="kicker">Manognya Pradeep · application atelier</p>
         <h1>Tracker</h1>
         <p className="lede">
           Every time the cloud agent writes a resume, the company, posting, generation time,

@@ -175,7 +175,7 @@ export default function HomePage() {
   return (
     <main className="shell">
       <header className="masthead">
-        <p className="kicker">Sreeniketh Aathreya · application atelier</p>
+        <p className="kicker">Manognya Pradeep · application atelier</p>
         <h1>Worm</h1>
         <p className="lede">
           Paste a job description. A Cursor cloud agent extracts keywords from the posting,
@@ -306,8 +306,8 @@ export default function HomePage() {
                 activeTex &&
                 downloadTex(
                   tab === "resume"
-                    ? "SreenikethAathreya_Resume.tex"
-                    : "SreenikethAathreya_CoverLetter.tex",
+                    ? "ManognyaPradeep_Resume.tex"
+                    : "ManognyaPradeep_CoverLetter.tex",
                   activeTex,
                 )
               }
