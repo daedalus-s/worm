@@ -58,17 +58,21 @@ export function buildAgentPrompt(input: {
     "",
     "## This application",
     `Today's date: ${today}`,
-    input.company ? `Target company: ${input.company}` : "Target company: infer from the job description if present.",
-    input.role ? `Target role: ${input.role}` : "Target role: infer from the job description if present.",
+    input.company
+      ? `Target company: ${input.company}. This name OVERRIDES any company mentioned in the job description. The cover letter must address ${input.company}.`
+      : "Target company: infer from the job description if present.",
+    input.role
+      ? `Target role: ${input.role}. This title OVERRIDES any role inferred from the job description. Name this role in the cover letter opening.`
+      : "Target role: infer from the job description if present.",
     input.skipCoverLetter
       ? "Cover letter: SKIP. Do not write a cover letter. Still include the <<<COVER_LETTER_TEX>>> marker, but leave that section empty."
-      : "Cover letter: required. Produce a full Overleaf cover letter.",
+      : "Cover letter: required. Rewrite it from scratch for THIS application. Do not reuse a previous letter, leave COMPANY_NAME, or keep % Paragraph comments. Put <<<COVER_LETTER_TEX>>> before <<<RESUME_TEX>>> so the letter cannot be truncated.",
     "",
     "## Job description",
     input.jobDescription.trim(),
     "",
     input.skipCoverLetter
-      ? "Produce <<<KEYWORDS>>> and <<<RESUME_TEX>>> now. Leave <<<COVER_LETTER_TEX>>> empty."
-      : "Produce the three marked sections now.",
+      ? "Produce <<<KEYWORDS>>> then <<<COVER_LETTER_TEX>>> (empty) then <<<RESUME_TEX>>>."
+      : "Produce exactly these sections in this order: <<<KEYWORDS>>>, <<<COVER_LETTER_TEX>>> (complete Overleaf cover letter), <<<RESUME_TEX>>> (complete Overleaf resume).",
   ].join("\n");
 }

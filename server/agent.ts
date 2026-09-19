@@ -273,19 +273,31 @@ export async function runTailoringAgent(
     }
 
     let raw = result.result ?? "";
+    let output = parseAgentOutput(raw, { skipCoverLetter: options.skipCoverLetter });
 
-    try {
-      const artifacts = await agent.listArtifacts();
-      for (const artifact of artifacts) {
-        if (!/\.(tex|txt|md)$/i.test(artifact.path)) continue;
-        const buffer = await agent.downloadArtifact(artifact.path);
-        raw += `\n\n${buffer.toString("utf8")}`;
+    const needsArtifacts =
+      !output.resumeTex || (!options.skipCoverLetter && !output.coverLetterTex);
+    if (needsArtifacts) {
+      try {
+        const artifacts = await agent.listArtifacts();
+        const extras: string[] = [];
+        for (const artifact of artifacts) {
+          const normalized = artifact.path.replace(/\\/g, "/");
+          if (!/\.(tex|txt|md)$/i.test(normalized)) continue;
+          if (/template/i.test(normalized)) continue;
+          if (/(^|\/)profile\//i.test(normalized)) continue;
+          const buffer = await agent.downloadArtifact(artifact.path);
+          extras.push(buffer.toString("utf8"));
+        }
+        if (extras.length > 0) {
+          output = parseAgentOutput(`${raw}\n\n${extras.join("\n\n")}`, {
+            skipCoverLetter: options.skipCoverLetter,
+          });
+        }
+      } catch {
+        // Artifacts are optional; the final assistant text is the source of truth.
       }
-    } catch {
-      // Artifacts are optional; the final assistant text is the source of truth.
     }
-
-    const output = parseAgentOutput(raw, { skipCoverLetter: options.skipCoverLetter });
     if (!output.resumeTex) {
       throw new Error(
         "The cloud agent finished but did not return a complete Overleaf resume. Try again with a shorter job description.",

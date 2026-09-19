@@ -10,15 +10,6 @@ const MARKERS = {
   cover: "<<<COVER_LETTER_TEX>>>",
 } as const;
 
-function between(source: string, start: string, end?: string): string {
-  const index = source.indexOf(start);
-  if (index < 0) return "";
-  const rest = source.slice(index + start.length);
-  if (!end) return rest.trim();
-  const stop = rest.indexOf(end);
-  return (stop < 0 ? rest : rest.slice(0, stop)).trim();
-}
-
 function stripFence(block: string): string {
   return block
     .replace(/^```(?:latex|tex)?\s*/i, "")
@@ -36,21 +27,55 @@ function extractDocuments(text: string): string[] {
   return docs;
 }
 
+function firstDocument(block: string): string {
+  const trimmed = stripFence(block);
+  if (!trimmed) return "";
+  return extractDocuments(trimmed)[0] || trimmed;
+}
+
+function sliceAfterMarker(source: string, marker: string, others: string[]): string {
+  const start = source.lastIndexOf(marker);
+  if (start < 0) return "";
+  const from = start + marker.length;
+  let end = source.length;
+  for (const other of others) {
+    const at = source.indexOf(other, from);
+    if (at >= 0 && at < end) end = at;
+  }
+  return source.slice(from, end);
+}
+
+function isStubCover(doc: string): boolean {
+  return /COMPANY\\?_NAME/.test(doc) || /% Paragraph 1:/.test(doc);
+}
+
+function isCoverLetterDoc(doc: string, resumeTex: string): boolean {
+  if (!doc || doc === resumeTex || isStubCover(doc)) return false;
+  if (/\\section\{Work Experience\}/i.test(doc)) return false;
+  return /Sincerely|Dear Hiring|cover letter/i.test(doc);
+}
+
 export function parseAgentOutput(
   raw: string,
   options?: { skipCoverLetter?: boolean },
 ): TailoredOutput {
-  const keywordsRaw = between(raw, MARKERS.keywords, MARKERS.resume);
-  const resumeMarked = stripFence(between(raw, MARKERS.resume, MARKERS.cover));
-  const coverMarked = stripFence(between(raw, MARKERS.cover));
+  const keywordsRaw = sliceAfterMarker(raw, MARKERS.keywords, [
+    MARKERS.resume,
+    MARKERS.cover,
+  ]);
+  const resumeMarked = firstDocument(
+    sliceAfterMarker(raw, MARKERS.resume, [MARKERS.cover, MARKERS.keywords]),
+  );
+  const coverMarked = firstDocument(
+    sliceAfterMarker(raw, MARKERS.cover, [MARKERS.resume, MARKERS.keywords]),
+  );
 
   const documents = extractDocuments(raw);
   const resumeTex = resumeMarked || documents[0] || "";
   const coverLetterTex = options?.skipCoverLetter
     ? ""
-    : coverMarked ||
-      documents.find((doc) => /cover letter|Hiring Team|Sincerely/i.test(doc) && doc !== resumeTex) ||
-      documents[1] ||
+    : (!isStubCover(coverMarked) && coverMarked) ||
+      documents.find((doc) => isCoverLetterDoc(doc, resumeTex)) ||
       "";
 
   const keywords = keywordsRaw

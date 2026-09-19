@@ -50,6 +50,7 @@ export default function HomePage() {
   const [tab, setTab] = useState<Tab>("resume");
   const [copied, setCopied] = useState<string | null>(null);
   const [agentId, setAgentId] = useState<string | null>(null);
+  const [runId, setRunId] = useState<string | null>(null);
   const [highPriority, setHighPriority] = useState(false);
   const [skipCoverLetter, setSkipCoverLetter] = useState(false);
 
@@ -72,6 +73,7 @@ export default function HomePage() {
     setOutput(null);
     setCopied(null);
     setAgentId(null);
+    setRunId(null);
     setLog(["Sending the job description to a Cursor cloud agent…"]);
     void unlockCompletionSound();
 
@@ -146,8 +148,13 @@ export default function HomePage() {
         pushLog(event.message);
         break;
       case "done":
-        setOutput(event.output);
+        setOutput({
+          keywords: event.output.keywords,
+          resumeTex: event.output.resumeTex,
+          coverLetterTex: event.output.coverLetterTex,
+        });
         setAgentId(event.agentId);
+        setRunId(event.runId);
         setTab("resume");
         pushLog(
           event.output.coverLetterTex
@@ -313,7 +320,9 @@ export default function HomePage() {
             </span>
           </div>
 
-          <pre className="tex">{activeTex}</pre>
+          <pre className="tex" key={`${runId ?? agentId ?? "preview"}-${tab}`}>
+            {activeTex}
+          </pre>
         </section>
       ) : null}
     </main>
