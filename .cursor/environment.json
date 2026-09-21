@@ -1,0 +1,17 @@
+{
+  "name": "worm",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "next-dev",
+      "command": "npm run dev",
+      "description": "Next.js dev server on http://localhost:3000. Set CURSOR_API_KEY (secret) to enable resume/cover-letter generation."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ]
+}
